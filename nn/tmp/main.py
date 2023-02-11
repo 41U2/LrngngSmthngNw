@@ -1,16 +1,39 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+class Net(nn.Module):
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    def __init__(self):
+        super(Net, self).__init__()
+        self.linear = nn.Linear(3, 2, device="cuda")
+
+    def forward(self, x):
+        x = self.linear(x)
+        return x
+
+
+net = Net()
+print(net)
+
+params = list(net.parameters())
+print("nParams: ", len(params))
+print("input size: ", params[0].size())
+
+input = torch.randn(5, 1, 3, device="cuda")
+target = torch.randn(5, 1, 2, device="cuda")
+criterion = nn.MSELoss()
+
+learning_rate = 0.01
+n_iterations = 200
+optimizer = optim.SGD(net.parameters(), lr=learning_rate)
+
+for i_iteration in range(n_iterations):
+    optimizer.zero_grad()
+    output = net(input)
+    loss = criterion(output, target)
+    loss.backward()
+    optimizer.step()
+    print("loss: ", loss)
